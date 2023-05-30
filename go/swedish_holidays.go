@@ -1,8 +1,10 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"time"
 )
 
 func main() {
@@ -30,15 +32,23 @@ type swedishHolidays struct {
 func getHolidays(y int) swedishHolidays {
 	fmt.Println("kör", y)
 	paskDagen := calcPaskDagen(y)
+	langFredagen, err := calcLangFredagen(paskDagen)
+	annandagPask, err := calcAnnandagPask(paskDagen)
 
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+	}
+
+	fmt.Println("långfredagen", langFredagen)
 	fmt.Println("påskdagen", paskDagen)
+	fmt.Println("annandag påsk", annandagPask)
 
 	return swedishHolidays{
 		nyarsDagen:            fmt.Sprintf("%v-01-01", y),
 		trettondedagJul:       fmt.Sprintf("%v-01-06", y),
-		langfredagen:          "",
+		langfredagen:          langFredagen,
 		paskDagen:             paskDagen,
-		annandagPask:          "",
+		annandagPask:          annandagPask,
 		kristiHimmelsfardsdag: "",
 		pingstDagen:           "",
 		nationalDagen:         fmt.Sprintf("%v-06-06", y),
@@ -46,6 +56,48 @@ func getHolidays(y int) swedishHolidays {
 		allaHelgonsDag:        "",
 		julDagen:              fmt.Sprintf("%v-12-25", y),
 		annandagJul:           fmt.Sprintf("%v-12-26", y)}
+}
+
+func findWeekday(startDate string, weekday time.Weekday, direction string) (date string, err error) {
+	parsedStartDate, err := time.Parse(time.DateOnly, startDate)
+
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+	}
+
+	for i := 0; i < 7; i++ {
+		var d int
+		switch direction {
+		case "forward":
+			d = +i
+		case "back":
+			d = -i
+		}
+
+		dateToCheck := parsedStartDate.AddDate(0, 0, d)
+		if dateToCheck.Weekday() == weekday {
+			return dateToCheck.Format(time.DateOnly), nil
+		}
+	}
+	fmt.Println(parsedStartDate)
+
+	return "", errors.New("Fann inget datum")
+}
+
+func calcLangFredagen(p string) (langfredagen string, err error) {
+	return findWeekday(p, time.Friday, "back")
+}
+
+func calcAnnandagPask(p string) (annandagPask string, err error) {
+	parsedStartDate, err := time.Parse(time.DateOnly, p)
+
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+	}
+
+	annandagPaskTime := parsedStartDate.AddDate(0, 0, 1)
+
+	return annandagPaskTime.Format(time.DateOnly), nil
 }
 
 // Based on the calculation here:
