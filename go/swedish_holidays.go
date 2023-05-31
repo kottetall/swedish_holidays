@@ -34,6 +34,10 @@ func getHolidays(y int) swedishHolidays {
 	paskDagen := calcPaskDagen(y)
 	langFredagen, err := calcLangFredagen(paskDagen)
 	annandagPask, err := calcAnnandagPask(paskDagen)
+	kristiHimmelsfardsdag, err := calcKristiHimmelsfardsdag(paskDagen)
+	pingstDagen, err := calcPingstDagen(paskDagen)
+	midsommarDagen, err := calcMidsommarDagen(y)
+	allaHelgonsDag, err := calcAllaHelgonsDag(y)
 
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
@@ -42,6 +46,10 @@ func getHolidays(y int) swedishHolidays {
 	fmt.Println("långfredagen", langFredagen)
 	fmt.Println("påskdagen", paskDagen)
 	fmt.Println("annandag påsk", annandagPask)
+	fmt.Println("Kristi himmelsfärdsdag", kristiHimmelsfardsdag)
+	fmt.Println("Pingstdagen", pingstDagen)
+	fmt.Println("midsommarDagen", midsommarDagen)
+	fmt.Println("allaHelgonsDag", allaHelgonsDag)
 
 	return swedishHolidays{
 		nyarsDagen:            fmt.Sprintf("%v-01-01", y),
@@ -49,11 +57,11 @@ func getHolidays(y int) swedishHolidays {
 		langfredagen:          langFredagen,
 		paskDagen:             paskDagen,
 		annandagPask:          annandagPask,
-		kristiHimmelsfardsdag: "",
-		pingstDagen:           "",
+		kristiHimmelsfardsdag: kristiHimmelsfardsdag,
+		pingstDagen:           pingstDagen,
 		nationalDagen:         fmt.Sprintf("%v-06-06", y),
-		midsommarDagen:        "",
-		allaHelgonsDag:        "",
+		midsommarDagen:        midsommarDagen,
+		allaHelgonsDag:        allaHelgonsDag,
 		julDagen:              fmt.Sprintf("%v-12-25", y),
 		annandagJul:           fmt.Sprintf("%v-12-26", y)}
 }
@@ -98,6 +106,26 @@ func calcAnnandagPask(p string) (annandagPask string, err error) {
 	annandagPaskTime := parsedStartDate.AddDate(0, 0, 1)
 
 	return annandagPaskTime.Format(time.DateOnly), nil
+}
+
+func calcKristiHimmelsfardsdag(p string) (kristiHimmelsfardsdag string, err error) {
+	// sjätte torsdagen efter påskdagen
+	return "", nil
+}
+
+func calcPingstDagen(p string) (pingstDagen string, err error) {
+	// sjunde söndagen efter påskdagen
+	return "", nil
+}
+
+func calcMidsommarDagen(y int) (midsommarDagen string, err error) {
+	startDate := fmt.Sprintf("%v-06-20", y)
+	return findWeekday(startDate, time.Saturday, "forward")
+}
+
+func calcAllaHelgonsDag(y int) (allaHelgonsDag string, err error) {
+	startDate := fmt.Sprintf("%v-10-31", y)
+	return findWeekday(startDate, time.Saturday, "forward")
 }
 
 // Based on the calculation here:
